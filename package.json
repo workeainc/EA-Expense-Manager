@@ -1,4 +1,7 @@
 {
+    "name": "ea-expense-manager",
+    "description": "Professional Expense & Income Management System by EA Soft Lab",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
         "dev": "npm run development",

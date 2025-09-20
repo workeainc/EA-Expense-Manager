@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <title>
-    @lang('quickadmin.quickadmin_title')
+    EA Expense Manager - Professional Financial Management
 </title>
 
 <meta http-equiv="X-UA-Compatible"

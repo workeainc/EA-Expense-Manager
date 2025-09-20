@@ -1,9 +1,14 @@
 {
-  "name": "laravel/laravel",
-  "description": "The Laravel Framework.",
+  "name": "easoftlab/expense-manager",
+  "description": "Professional Expense & Income Management System by EA Soft Lab",
   "keywords": [
-    "framework",
-    "laravel"
+    "expense-manager",
+    "income-tracker",
+    "financial-management",
+    "laravel",
+    "php",
+    "adminlte",
+    "multi-currency"
   ],
   "license": "MIT",
   "type": "project",

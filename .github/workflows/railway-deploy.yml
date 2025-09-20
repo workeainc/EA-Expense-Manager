@@ -2,9 +2,9 @@ name: Deploy to Railway
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   deploy:
@@ -19,13 +19,46 @@ jobs:
       with:
         php-version: '7.4'
         extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, iconv, json, mbstring, pdo, phar, tokenizer, xml, zip
-        tools: composer:v2
+        coverage: none
         
-    - name: Install dependencies
-      run: composer install --no-dev --optimize-autoloader
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
       
-    - name: Deploy to Railway
-      uses: railway/deploy@v1
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
       with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+          
+    - name: Install dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      
+    - name: Run tests
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        php artisan migrate --force
+        php artisan test
+        
+    - name: Deploy to Railway
+      uses: railwayapp/cli@v1
+      with:
+        railway_token: ${{ secrets.RAILWAY_TOKEN }}
         service: ${{ secrets.RAILWAY_SERVICE }}
-        token: ${{ secrets.RAILWAY_TOKEN }}
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        
+    - name: Run database migrations
+      run: |
+        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        railway run --service ${{ secrets.RAILWAY_SERVICE }} php artisan migrate --force
+        
+    - name: Clear and cache config
+      run: |
+        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        railway run --service ${{ secrets.RAILWAY_SERVICE }} php artisan config:cache
+        railway run --service ${{ secrets.RAILWAY_SERVICE }} php artisan route:cache
+        railway run --service ${{ secrets.RAILWAY_SERVICE }} php artisan view:cacheimage.png
